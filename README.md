@@ -7,6 +7,9 @@ A small full-stack expense tracker. Record personal expenses, review them, filte
 
 ---
 
+## Screenshot
+<img width="959" height="958" alt="Image" src="https://github.com/user-attachments/assets/d618965d-c738-4d11-bfef-5af7007178b5" />
+
 ## Running locally
 
 **Prerequisites:** Node 18+, a MongoDB connection string (Atlas free tier or local).
@@ -15,6 +18,11 @@ A small full-stack expense tracker. Record personal expenses, review them, filte
 git clone <repo-url>
 cd expense-tracker
 ```
+
+**Live demo:** https://fenmo-finance-tool-tau.vercel.app/
+**API:** https://fenmo-finance-api.onrender.com/
+
+> Note: backend is on Render's free tier and cold-starts after ~15 min of inactivity. First request after idle may take ~30s.
 
 **Backend:**
 
