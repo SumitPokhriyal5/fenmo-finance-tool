@@ -1,24 +1,9 @@
+import { formatDate, formatRupees } from "../lib/format";
 import type { Expense } from "../types";
 
 type Props = {
   expenses: Expense[];
 };
-
-function formatRupees(paise: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-  }).format(paise / 100);
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-IN", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 export function ExpenseList({ expenses }: Props) {
   if (expenses.length === 0) {
