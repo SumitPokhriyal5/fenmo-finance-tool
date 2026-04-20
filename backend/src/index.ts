@@ -1,38 +1,7 @@
-import express, { Request, Response, NextFunction } from "express";
-import cors from "cors";
-import morgan from "morgan";
 import mongoose from "mongoose";
 import "dotenv/config";
 import { connectDB } from "./config/db";
-import expenseRoutes from "./routes/expenses";
-import { errorHandler } from "./middleware/errorHandler";
-
-const app = express();
-
-app.use(
-  cors({
-    origin: process.env.CORS_ORIGIN,
-    allowedHeaders: ["Content-Type", "Idempotency-Key"],
-  })
-);
-app.use(express.json({ limit: "100kb" }));
-app.use(morgan("dev"));
-
-app.get("/health", (_req, res) => {
-  const dbReady = mongoose.connection.readyState === 1;
-  res.status(dbReady ? 200 : 503).json({
-    status: dbReady ? "ok" : "degraded",
-    db: dbReady ? "connected" : "disconnected",
-  });
-});
-
-app.use("/expenses", expenseRoutes);
-
-app.use((req: Request, res: Response, _next: NextFunction) => {
-  res.status(404).json({ error: `Route not found: ${req.method} ${req.path}` });
-});
-
-app.use(errorHandler);
+import { createApp } from "./app";
 
 const PORT = Number(process.env.PORT) || 4000;
 const MONGO_URI = process.env.MONGO_URI;
@@ -44,6 +13,11 @@ if (!MONGO_URI) {
 
 async function start() {
   await connectDB(MONGO_URI!);
+
+  const app = createApp({
+    corsOrigin: process.env.CORS_ORIGIN,
+    enableLogging: true,
+  });
 
   const server = app.listen(PORT, () => {
     console.log(`API running on http://localhost:${PORT}`);
