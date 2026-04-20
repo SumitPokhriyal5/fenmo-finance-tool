@@ -7,7 +7,9 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ) {
-  console.error(err);
+  if (err instanceof SyntaxError && "body" in err) {
+    return res.status(400).json({ error: "Invalid JSON" });
+  }
 
   if (err instanceof MongooseError.ValidationError) {
     return res.status(400).json({
@@ -16,5 +18,6 @@ export function errorHandler(
     });
   }
 
+  console.error(err);
   res.status(500).json({ error: "Internal server error" });
 }
