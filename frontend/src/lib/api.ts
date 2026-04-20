@@ -40,6 +40,31 @@ export function generateIdempotencyKey(): string {
   return crypto.randomUUID();
 }
 
+const RETRY_DELAYS_MS = [1000, 3000];
+
+function isRetryable(err: unknown): boolean {
+  if (err instanceof ApiError) return err.status >= 500;
+  return true;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (!isRetryable(err) || attempt === RETRY_DELAYS_MS.length) throw err;
+      await sleep(RETRY_DELAYS_MS[attempt]);
+    }
+  }
+  throw lastErr;
+}
+
 export async function listExpenses(
   params: ListExpensesParams = {}
 ): Promise<Expense[]> {
@@ -58,13 +83,15 @@ export async function createExpense(
   input: CreateExpenseInput,
   idempotencyKey: string
 ): Promise<Expense> {
-  const res = await fetch(`${config.apiUrl}/expenses`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Idempotency-Key": idempotencyKey,
-    },
-    body: JSON.stringify(input),
+  return withRetry(async () => {
+    const res = await fetch(`${config.apiUrl}/expenses`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Idempotency-Key": idempotencyKey,
+      },
+      body: JSON.stringify(input),
+    });
+    return handleResponse<Expense>(res);
   });
-  return handleResponse<Expense>(res);
 }

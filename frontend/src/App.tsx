@@ -5,6 +5,8 @@ import { ExpenseList } from "./components/ExpenseList";
 import { ExpenseForm } from "./components/ExpenseForm";
 import { ExpenseFilters } from "./components/ExpenseFilters";
 import { ExpenseTotal } from "./components/ExpenseTotal";
+import { ExpenseListSkeleton } from "./components/ExpenseListSkeleton";
+import { ErrorBanner } from "./components/ErrorBanner";
 
 export default function App() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -36,19 +38,19 @@ export default function App() {
     fetchExpenses();
   }, [fetchExpenses]);
 
-  useEffect(() => {
-    let cancelled = false;
-    listExpenses()
-      .then((all) => {
-        if (cancelled) return;
-        const unique = Array.from(new Set(all.map((e) => e.category))).sort();
-        setCategories(unique);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
+  const refreshCategories = useCallback(async () => {
+    try {
+      const all = await listExpenses();
+      const unique = Array.from(new Set(all.map((e) => e.category))).sort();
+      setCategories(unique);
+    } catch {
+      /* categories are a nice-to-have; silent fail is fine */
+    }
   }, []);
+
+  useEffect(() => {
+    refreshCategories();
+  }, [refreshCategories]);
 
   const handleCreated = (expense: Expense) => {
     setExpenses((prev) => {
@@ -84,23 +86,20 @@ export default function App() {
           />
         </div>
 
-        {loading && <p className="mt-4 text-gray-500">Loading…</p>}
+        <div className="mt-4 space-y-4">
+          {loading && <ExpenseListSkeleton />}
 
-        {error && (
-          <p
-            role="alert"
-            className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-          >
-            {error}
-          </p>
-        )}
+          {!loading && error && (
+            <ErrorBanner message={error} onRetry={fetchExpenses} />
+          )}
 
-        {!loading && !error && (
-          <div className="mt-4 space-y-4">
-            <ExpenseList expenses={expenses} />
-            {expenses.length > 0 && <ExpenseTotal expenses={expenses} />}
-          </div>
-        )}
+          {!loading && !error && (
+            <>
+              <ExpenseList expenses={expenses} />
+              {expenses.length > 0 && <ExpenseTotal expenses={expenses} />}
+            </>
+          )}
+        </div>
       </div>
     </main>
   );
