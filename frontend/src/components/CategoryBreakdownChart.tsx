@@ -50,7 +50,7 @@ export function CategoryBreakdownChart({ expenses }: Props) {
                     fontSize: "12px",
                   }}
                   itemStyle={{ color: "#fafafa" }}
-                  formatter={(value: number) => formatRupees(value)}
+                  formatter={(value) => formatRupees(Number(value))}
                 />
               </PieChart>
             </ResponsiveContainer>

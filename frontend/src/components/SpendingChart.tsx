@@ -65,8 +65,8 @@ export function SpendingChart({ expenses }: Props) {
                   fontSize: "12px",
                 }}
                 itemStyle={{ color: "#fafafa" }}
-                formatter={(value: number) => formatRupees(value)}
-                labelFormatter={formatDayLabel}
+                formatter={(value) => formatRupees(Number(value))}
+                labelFormatter={(label) => formatDayLabel(String(label))}
               />
               <Bar
                 dataKey="amount"
