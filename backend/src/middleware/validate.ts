@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodSchema } from "zod";
 
-export function validate<T>(schema: ZodSchema<T>) {
+type Source = "body" | "query";
+
+function validateSource<T>(schema: ZodSchema<T>, source: Source) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const result = schema.safeParse(req.body);
+    const result = schema.safeParse(req[source]);
     if (!result.success) {
       return res.status(400).json({
         error: "Validation failed",
@@ -13,7 +15,17 @@ export function validate<T>(schema: ZodSchema<T>) {
         })),
       });
     }
-    req.body = result.data;
+    if (source === "body") {
+      req.body = result.data;
+    } else {
+      (req as Request & { validatedQuery: T }).validatedQuery = result.data;
+    }
     next();
   };
 }
+
+export const validateBody = <T>(schema: ZodSchema<T>) =>
+  validateSource(schema, "body");
+
+export const validateQuery = <T>(schema: ZodSchema<T>) =>
+  validateSource(schema, "query");

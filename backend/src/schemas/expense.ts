@@ -11,3 +11,10 @@ export const createExpenseSchema = z.object({
 });
 
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
+
+export const listExpensesQuerySchema = z.object({
+  category: z.string().trim().min(1).max(50).optional(),
+  sort: z.enum(["date_desc", "date_asc"]).optional().default("date_desc"),
+});
+
+export type ListExpensesQuery = z.infer<typeof listExpensesQuerySchema>;

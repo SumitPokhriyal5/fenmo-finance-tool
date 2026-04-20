@@ -27,9 +27,13 @@ const expenseSchema = new Schema(
       type: Date,
       required: true,
     },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      immutable: true,
+    },
   },
   {
-    timestamps: { createdAt: "createdAt", updatedAt: false },
     toJSON: {
       virtuals: true,
       versionKey: false,
@@ -45,5 +49,5 @@ const expenseSchema = new Schema(
 expenseSchema.index({ date: -1 });
 expenseSchema.index({ category: 1, date: -1 });
 
-export type Expense = InferSchemaType<typeof expenseSchema>;
+export type ExpenseDoc = InferSchemaType<typeof expenseSchema>;
 export const ExpenseModel = model("Expense", expenseSchema);
