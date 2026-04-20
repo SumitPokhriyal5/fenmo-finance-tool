@@ -4,7 +4,31 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #fafafa;
-  color: #1a1a1a;
-  font-family: system-ui, -apple-system, sans-serif;
+  background: #09090b;
+  color: #fafafa;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(99, 102, 241, 0.08), transparent 40%),
+    radial-gradient(circle at 85% 10%, rgba(168, 85, 247, 0.06), transparent 45%);
+  background-attachment: fixed;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.35s ease-out backwards;
 }
