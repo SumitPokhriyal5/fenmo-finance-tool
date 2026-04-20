@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
+import { connectDB } from "./config/db";
 
 const app = express();
 
@@ -12,7 +13,15 @@ app.get("/health", (_req, res) => {
 });
 
 const PORT = Number(process.env.PORT) || 4000;
+const MONGO_URI = process.env.MONGO_URI;
 
-app.listen(PORT, () => {
-  console.log(`API running on http://localhost:${PORT}`);
+if (!MONGO_URI) {
+  console.error("MONGO_URI is not set");
+  process.exit(1);
+}
+
+connectDB(MONGO_URI).then(() => {
+  app.listen(PORT, () => {
+    console.log(`API running on http://localhost:${PORT}`);
+  });
 });
